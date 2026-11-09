@@ -364,15 +364,29 @@ function applyCatalog(c){
   keep.forEach(([i,v])=>{ if([...$(i).options].some(o=>o.value===v)) $(i).value=v; });
   lookup();
 }
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb="cb"+Date.now().toString(36)+Math.floor(Math.random()*1e6);
+    const s=document.createElement("script");
+    const done=()=>{clearTimeout(tm);delete window[cb];s.remove();};
+    const tm=setTimeout(()=>{done();reject(new Error("Tiempo agotado"));},25000);
+    window[cb]=d=>{done();resolve(d);};
+    s.onerror=()=>{done();reject(new Error("No se pudo cargar el script del Sheet"));};
+    s.src=API+"?"+Object.entries({...params,callback:cb}).map(([k,v])=>k+"="+encodeURIComponent(v)).join("&");
+    document.head.appendChild(s);
+  });
+}
 async function load(){
   try{
-    const r=await (await fetch(API+(KEY?"?k="+encodeURIComponent(KEY):""))).json();
+    const r=await jsonp(KEY?{k:KEY}:{});
     if(r.ok&&KEY&&!r.auth){KEY="";try{sessionStorage.removeItem("k")}catch(e){}}
     if(r.ok){applyCatalog(r); ROWS=r.rows.map(x=>({...x,eco:+x.eco,calTC:+x.calTC,calTrip:+x.calTrip})); setStatus(); renderAll();}
   }catch(e){ setStatus("● Sin conexión al Sheet"); }
 }
+const slim=o=>{const r={};Object.keys(o).forEach(k=>{if(o[k]!==""&&o[k]!=null)r[k]=o[k]});return r};
 async function post(b){
-  const r=await (await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...b,k:KEY})})).json();
+  const p=b.action==="add"?{action:"add",data:JSON.stringify(slim(b.row))}:{action:"update",id:b.id,patch:JSON.stringify(b.patch),k:KEY};
+  const r=await jsonp(p);
   if(!r.ok) throw new Error(r.error); return r;
 }
 async function initStore(){ await load(); setInterval(load,60000); }
@@ -440,11 +454,11 @@ async function tryPw(){
   const k=$("pw").value; if(!k)return;
   $("pwGo").disabled=true;
   try{
-    const r=await (await fetch(API+"?k="+encodeURIComponent(k))).json();
+    const r=await jsonp({k});
     if(r.ok&&r.auth===undefined){$("pwMsg").textContent="El Sheet tiene el código anterior: pega el nuevo Codigo.gs y publica una versión nueva.";}
     else if(r.ok&&r.auth){KEY=k;try{sessionStorage.setItem("k",k)}catch(e){} await load(); showTab(TAB);}
     else $("pwMsg").textContent="Contraseña incorrecta";
-  }catch(e){$("pwMsg").textContent=(e instanceof SyntaxError)?"El Sheet no devolvió datos: en Apps Script, la implementación debe tener acceso «Cualquier persona».":"Sin conexión con el Sheet. Abre la página desde su enlace de Vercel (no dentro de Claude). Detalle: "+(e&&e.message||e)+" · origen: "+location.origin;}
+  }catch(e){$("pwMsg").textContent=(e&&e.message&&e.message.indexOf("script")>=0)?"No se pudo cargar el Sheet: revisa que la implementación tenga acceso «Cualquier persona» y que el código nuevo esté publicado.":"Sin conexión con el Sheet. Abre la página desde su enlace de Vercel (no dentro de Claude). Detalle: "+(e&&e.message||e)+" · origen: "+location.origin;}
   $("pwGo").disabled=false;
 }
 $("pwGo").addEventListener("click",tryPw);
