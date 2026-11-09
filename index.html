@@ -444,7 +444,7 @@ async function tryPw(){
     if(r.ok&&r.auth===undefined){$("pwMsg").textContent="El Sheet tiene el código anterior: pega el nuevo Codigo.gs y publica una versión nueva.";}
     else if(r.ok&&r.auth){KEY=k;try{sessionStorage.setItem("k",k)}catch(e){} await load(); showTab(TAB);}
     else $("pwMsg").textContent="Contraseña incorrecta";
-  }catch(e){$("pwMsg").textContent=(e instanceof SyntaxError)?"El Sheet no devolvió datos: en Apps Script, la implementación debe tener acceso «Cualquier persona».":"Sin conexión con el Sheet. Abre la página desde su enlace de Vercel (no dentro de Claude).";}
+  }catch(e){$("pwMsg").textContent=(e instanceof SyntaxError)?"El Sheet no devolvió datos: en Apps Script, la implementación debe tener acceso «Cualquier persona».":"Sin conexión con el Sheet. Abre la página desde su enlace de Vercel (no dentro de Claude). Detalle: "+(e&&e.message||e)+" · origen: "+location.origin;}
   $("pwGo").disabled=false;
 }
 $("pwGo").addEventListener("click",tryPw);
