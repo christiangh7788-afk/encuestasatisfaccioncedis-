@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encuesta de Satisfacción · Torre de Control y CEDIS</title>
+<style>
+:root{
+  --bg:#f4f5f7; --card:#fff; --ink:#1b2430; --mute:#66707e; --line:#e1e5ea;
+  --brand:#c8102e; --brand-d:#9d0c24; --accent:#f2a900;
+  --good:#1f8a4c; --mid:#c98a00; --bad:#c8102e; --bar:#2f5d8a; --bar2:#e08a1e;
+  --r:12px;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#12161c;--card:#1b2129;--ink:#e8ecf1;--mute:#98a3b1;--line:#2c3541;--bar:#6fa3d6;--bar2:#f0a94a;--good:#47c47e;--mid:#e5b53a;--bad:#ff6b7d}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--brand);color:#fff;padding:14px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px}
+header small{opacity:.85;display:block;font-weight:400;font-size:12px}
+#store{font-size:12px;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:99px}
+nav{display:flex;gap:4px;padding:10px 20px 0;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;overflow-x:auto}
+nav button{border:0;background:none;color:var(--mute);font:inherit;font-weight:600;padding:10px 16px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--brand);border-color:var(--brand)}
+main{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 12px;text-transform:uppercase;letter-spacing:.6px;color:var(--brand)}
+.card h3{font-size:14px;margin:0 0 10px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+label{display:block;font-size:12px;font-weight:600;color:var(--mute);margin-bottom:4px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+input[readonly]{background:var(--bg);font-weight:600}
+textarea{min-height:64px;resize:vertical}
+.eco{font-size:22px;font-weight:700;letter-spacing:1px}
+.hint{font-size:12px;margin-top:4px;min-height:16px}
+.hint.ok{color:var(--good)}.hint.err{color:var(--bad)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg input{position:absolute;opacity:0;width:0;height:0}
+.seg label{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:14px;color:var(--ink);font-weight:500;background:var(--card)}
+.seg input:checked+label{background:var(--brand);color:#fff;border-color:var(--brand)}
+.seg input:focus-visible+label{outline:2px solid var(--accent)}
+.rate label{min-width:48px;text-align:center;font-size:17px;font-weight:700}
+.rate-scale{font-size:11px;color:var(--mute);margin-top:4px}
+.q{margin-bottom:14px}
+.q>label.t{font-size:13px;color:var(--ink)}
+.btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:11px 22px;font:inherit;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--brand-d)}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.msg{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px}
+.msg.err{background:#fde8eb;color:#8a0f22}.msg.ok{background:#e1f4e8;color:#14612f}
+@media (prefers-color-scheme:dark){.msg.err{background:#3a1a20;color:#ffb3bd}.msg.ok{background:#16301f;color:#9be2b8}}
+.hide{display:none!important}
+.kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.kpi .l{font-size:12px;color:var(--mute);font-weight:600}
+.kpi .v{font-size:30px;font-weight:800;line-height:1.1;margin-top:4px}
+.kpi .s{font-size:12px;color:var(--mute);margin-top:2px}
+.filters{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end}
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--mute);position:sticky;top:0;background:var(--card)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.scroll{overflow:auto;max-height:420px}
+.bar{height:10px;border-radius:5px;background:var(--bar);min-width:2px}
+.dist{display:grid;grid-template-columns:22px 1fr 1fr 70px;gap:6px 10px;align-items:center;font-size:13px}
+.dist .h{font-size:11px;color:var(--mute);font-weight:600}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700}
+.pill.good{background:#e1f4e8;color:#14612f}.pill.mid{background:#fff3d1;color:#7a5600}.pill.bad{background:#fde8eb;color:#8a0f22}
+@media (prefers-color-scheme:dark){.pill.good{background:#16301f;color:#9be2b8}.pill.mid{background:#3a3014;color:#f2d27a}.pill.bad{background:#3a1a20;color:#ffb3bd}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chips button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:5px 12px;border-radius:99px;font:inherit;font-size:13px;cursor:pointer}
+.chips button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.empty{color:var(--mute);text-align:center;padding:26px 10px}
+.note{font-size:12px;color:var(--mute)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Encuesta de Satisfacción · Torre de Control y CEDIS
+    <small>Compañía Veracruz · Catálogos desde Google Sheet</small></h1>
+  <span id="store">Conectando…</span>
+</header>
+<nav id="tabs">
+  <button data-t="enc" class="on">Encuesta</button>
+  <button data-t="dash">Dashboard</button>
+  <button data-t="reg">Registros</button>
+</nav>
+<main>
+
+<!-- ============ ENCUESTA ============ -->
+<section id="t-enc">
+<form id="f" autocomplete="off" novalidate>
+  <div class="card">
+    <h2>1 · Identificación de la tienda</h2>
+    <div class="grid">
+      <div><label for="fecha">Fecha de entrega</label><input type="date" id="fecha"></div>
+      <div><label for="eco">Número de tienda (ECO)</label>
+        <input id="eco" class="eco" inputmode="numeric" maxlength="6" placeholder="Ej. 1234">
+        <div id="ecoHint" class="hint"></div></div>
+      <div><label>Nombre de la tienda</label><input id="tienda" readonly tabindex="-1"></div>
+      <div><label>Coach</label><input id="coach" readonly tabindex="-1"></div>
+      <div><label>Zona</label><input id="zona" readonly tabindex="-1"></div>
+      <div><label>Región</label><input id="region" readonly tabindex="-1"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2 · Torre de Control</h2>
+    <div class="grid">
+      <div class="q"><label for="tc">¿Quién atendió de Torre de Control?</label><select id="tc"></select></div>
+      <div class="q"><label class="t">¿Se identificó?</label><div class="seg" data-n="tcId"></div></div>
+    </div>
+    <div class="q"><label class="t">¿Recibió seguimiento de la ruta?</label><div class="seg" data-n="ruta"></div></div>
+    <div class="q"><label class="t">Calificación de Torre de Control</label><div class="seg rate" data-n="calTC"></div>
+      <div class="rate-scale">1 = Muy deficiente · 5 = Excelente</div></div>
+    <div class="q"><label for="motivoTC">Motivo de la calificación <span id="reqTC" class="note"></span></label><textarea id="motivoTC"></textarea></div>
+  </div>
+
+  <div class="card">
+    <h2>3 · Incidencias</h2>
+    <div class="q"><label class="t">¿Hubo incidencia en la entrega?</label><div class="seg" data-n="inc"></div></div>
+    <div id="incBox" class="hide">
+      <div class="grid">
+        <div class="q"><label for="tipo">Tipo de incidencia</label><select id="tipo"></select></div>
+        <div class="q"><label class="t">¿Se resolvió?</label><div class="seg" data-n="resuelto"></div></div>
+        <div class="q"><label for="folio">Folio de incidencia (automático)</label><input id="folio" readonly tabindex="-1" placeholder="Se asigna con la tienda y fecha"></div>
+      </div>
+      <div class="q"><label for="detalle">Detalle / problema pendiente</label><textarea id="detalle"></textarea></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4 · Tripulación CEDIS</h2>
+    <div class="grid">
+      <div class="q"><label for="chofer">Chofer</label><select id="chofer"></select></div>
+      <div class="q"><label for="aux">Auxiliar de maniobra</label><select id="aux"></select></div>
+    </div>
+    <div class="grid">
+      <div class="q"><label class="t">Se identificaron</label><div class="seg" data-n="opId"></div></div>
+      <div class="q"><label class="t">Mostraron credencial</label><div class="seg" data-n="cred"></div></div>
+      <div class="q"><label class="t">Trato profesional</label><div class="seg" data-n="trato"></div></div>
+      <div class="q"><label class="t">Descarga ordenada</label><div class="seg" data-n="descarga"></div></div>
+    </div>
+    <div class="q"><label class="t">Calificación de la tripulación</label><div class="seg rate" data-n="calTrip"></div>
+      <div class="rate-scale">1 = Muy deficiente · 5 = Excelente</div></div>
+    <div class="q"><label for="motivoTrip">Motivo de la calificación <span id="reqTrip" class="note"></span></label><textarea id="motivoTrip"></textarea></div>
+    <div class="q"><label for="sug">Sugerencias de mejora</label><textarea id="sug"></textarea></div>
+  </div>
+
+  <div class="card hide" id="segBox">
+    <h2>5 · Seguimiento de incidencia no resuelta</h2>
+    <div class="grid">
+      <div class="q"><label for="resp">Responsable de seguimiento</label><input id="resp"></div>
+      <div class="q"><label for="fcomp">Fecha compromiso</label><input type="date" id="fcomp"></div>
+      <div class="q"><label for="estado">Estado</label><select id="estado"></select></div>
+    </div>
+  </div>
+
+  <div id="fmsg"></div>
+  <button class="btn" type="submit">Guardar encuesta</button>
+  <button class="btn sec" type="button" id="clear">Limpiar</button>
+</form>
+</section>
+
+<!-- ============ DASHBOARD ============ -->
+<section id="t-dash" class="hide">
+  <div class="card">
+    <div class="filters">
+      <div><label>Región</label><select id="fRegion"></select></div>
+      <div><label>Zona</label><select id="fZona"></select></div>
+      <div><label>Coach</label><select id="fCoach"></select></div>
+      <div><label>Desde</label><input type="date" id="fDesde"></div>
+      <div><label>Hasta</label><input type="date" id="fHasta"></div>
+      <div><button class="btn sec" type="button" id="fReset">Quitar filtros</button></div>
+    </div>
+  </div>
+  <div id="kpis" class="kpis"></div>
+
+  <div class="two">
+    <div class="card"><h3>Distribución de calificaciones</h3><div id="dist"></div></div>
+    <div class="card"><h3>Incidencias por tipo</h3><div id="incTipo"></div></div>
+  </div>
+
+  <div class="card">
+    <h3>Resultados por</h3>
+    <div class="chips" id="dimChips">
+      <button data-d="region" class="on">Región</button><button data-d="zona">Zona</button><button data-d="coach">Coach</button><button data-d="tienda">Tienda</button>
+    </div>
+    <div class="scroll" id="byDim"></div>
+  </div>
+
+  <div class="two">
+    <div class="card"><h3>Torre de Control · por colaborador</h3><div class="scroll" id="byTC"></div></div>
+    <div class="card"><h3>Tripulación · por chofer y auxiliar</h3>
+      <div class="chips" id="crewChips"><button data-c="chofer" class="on">Chofer</button><button data-c="aux">Auxiliar</button></div>
+      <div class="scroll" id="byCrew"></div></div>
+  </div>
+
+  <div class="card"><h3>Incidencias con seguimiento abierto</h3><div class="scroll" id="pend"></div></div>
+
+  <div class="card"><h3>Cobertura de tiendas encuestadas</h3><div id="cover"></div></div>
+</section>
+
+<!-- ============ REGISTROS ============ -->
+<section id="t-reg" class="hide">
+  <div class="card">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <h3 style="margin:0" id="regTitle">Registros</h3>
+      <div><button class="btn sec sm" id="copyCsv" type="button">Copiar como CSV</button>
+      <span id="copyMsg" class="note"></span></div>
+    </div>
+    <div class="scroll" style="max-height:640px" id="regTable"></div>
+  </div>
+</section>
+</main>
+
+<script>
+const D = {"stores":[[106,"Angel R. Cabada","VERACRUZ SUR","TUXTLAS","HERNANDEZ HERNANDEZ DAVID"],[111,"Xalapa","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[113,"Las trancas","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[121,"Jalacingo","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[122,"Teziutlan Lerdo","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[125,"Teocelo 5 de Mayo","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[135,"Martires del 28","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[147,"Jose Azueta","VERACRUZ SUR","PIÑERA","VANESSA SANCHEZ BASULTO"],[156,"Las Vigas Ver","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[207,"Atenas veracruzana","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[214,"Playa linda","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[223,"Paseo la burrita","VERACRUZ NORTE","POZA RICA","HERNANDEZ SANTES CAROLINA"],[236,"Papantla Centro","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[240,"Alto Lucero","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[253,"Tamalin","VERACRUZ NORTE","TUXPAN","FERNANDO GARCÍA HERNÁNDEZ"],[254,"Entabladero Benito Juarez","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[259,"Jalapilla","VERACRUZ SUR","CORDOBA","LOZANO SANCHEZ SAUL"],[260,"Juchique","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[263,"Naolinco","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[265,"Camalote","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[266,"Huehuetla","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[270,"Tierra Blanca Mercado","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[272,"Coatepec Mercado","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[313,"La Mixtequilla","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[315,"Temascal","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[333,"Loma Bonita Mercado","VERACRUZ SUR","PIÑERA","VANESSA SANCHEZ BASULTO"],[335,"Cosolapa Mercado","VERACRUZ SUR","CORDOBA","LOZANO SANCHEZ SAUL"],[337,"Chignautla","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[338,"Rio Medio 4","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[347,"Av quevedo","VERACRUZ CENTRO","BOCA DEL RIO","ROMERO ESTRADA ARAZELY"],[352,"Hueytamalco","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[364,"Valle Nacional","VERACRUZ SUR","TUXTEPEC","RUBEN GUIZAR AGUIRRE"],[369,"PANUCO ABASTO","VERACRUZ NORTE","TAMPICO NORTE","PEDRO TOMAS HERNANDEZ OLMOS"],[371,"Acatlan Centro","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[415,"Actopan San Francisco","VERACRUZ CENTRO","CARDEL","GAMEZ MOLINOS ALEJANDRA MONSERRAT"],[419,"Soledad De Doblado 5 De Mayo","VERACRUZ CENTRO","HEROICA","LILIANA SANDOVAL GUEVARA"],[426,"Paso De Ovejas Insurgentes 1","VERACRUZ CENTRO","CARDEL","GAMEZ MOLINOS ALEJANDRA MONSERRAT"],[435,"La Perla Centro","VERACRUZ SUR","CORDOBA","LOZANO SANCHEZ SAUL"],[436,"Tlalixcoyan 1","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[443,"Totutla","VERACRUZ SUR","CAFETALERA","MARGARITA FABIAN ARROYO"],[447,"Cosamaloapan Mercado","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[471,"Paso del Macho","VERACRUZ SUR","CAFETALERA","MARGARITA FABIAN ARROYO"],[478,"Aldama Tuxtepec","VERACRUZ SUR","PIÑERA","VANESSA SANCHEZ BASULTO"],[493,"Tuxtepec Centro 2","VERACRUZ SUR","TUXTEPEC","RUBEN GUIZAR AGUIRRE"],[502,"Zozocolco Centro","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[503,"JAMAPA ORIENTE","VERACRUZ SUR","PUERTO","SANDOVAL GARCIA GUADALUPE"],[504,"TLALNEHUAYOCAN","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[515,"LOS NARANJOS VERACRUZ","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[520,"TUXTEPEC CARRANZA","VERACRUZ SUR","PIÑERA","VANESSA SANCHEZ BASULTO"],[541,"Tecolutla","VERACRUZ NORTE","GUTIERREZ ZAMORA","GUERRERO FERMAN SANTOS JAVIER"],[562,"Puente moreno","VERACRUZ SUR","PUERTO","SANDOVAL GARCIA GUADALUPE"],[565,"Calle 8 Col Carranza","VERACRUZ CENTRO","BOCA DEL RIO","ROMERO ESTRADA ARAZELY"],[566,"Tihuatlan Cuauhtemoc","VERACRUZ NORTE","ALAMO","JHAIR ALBERTO MEJIA FONTES"],[571,"Potrero Nuevo","VERACRUZ SUR","CAFETALERA","MARGARITA FABIAN ARROYO"],[575,"Cotaxtla Juarez","VERACRUZ SUR","PUERTO","SANDOVAL GARCIA GUADALUPE"],[591,"Perote Aldama","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[592,"Platon Sanchez","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[618,"Altotonga Hidalgo","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[622,"Tempoal","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[637,"Nautla Maracaibo","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[643,"Poza Rica Avila Camacho","VERACRUZ NORTE","POZA RICA","HERNANDEZ SANTES CAROLINA"],[652,"Filomeno mata 5 de mayo","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[671,"Atlapexco","VERACRUZ NORTE","HUEJUTLA","SALGUERO FLORES RUBISEL"],[673,"Independencia Martinez","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[680,"Ojitlan II","VERACRUZ SUR","TUXTEPEC","RUBEN GUIZAR AGUIRRE"],[702,"Cardel Revolucion","VERACRUZ CENTRO","CARDEL","GAMEZ MOLINOS ALEJANDRA MONSERRAT"],[703,"Carranza 5 de Mayo","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[704,"Revolución San Rafael","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[705,"Carrizal Zapata","VERACRUZ CENTRO","CARDEL","GAMEZ MOLINOS ALEJANDRA MONSERRAT"],[707,"El Rubi","VERACRUZ SUR","TUXTEPEC","RUBEN GUIZAR AGUIRRE"],[721,"Jaltocan","VERACRUZ NORTE","HUEJUTLA","SALGUERO FLORES RUBISEL"],[734,"Tuxtepec Hidalgo","VERACRUZ SUR","PIÑERA","VANESSA SANCHEZ BASULTO"],[735,"Casitas Veracruz","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[736,"Maria de la torre","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[737,"El morro Veracruz","VERACRUZ CENTRO","BOCA DEL RIO","ROMERO ESTRADA ARAZELY"],[751,"Mangos Altamira","VERACRUZ NORTE","TAMPICO SUR","IGNACIO ARCOS PÉREZ"],[760,"Tantoyuca calle 12 de julio","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[776,"Cervecera","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[782,"Tepetzintla","VERACRUZ NORTE","ALAMO","JHAIR ALBERTO MEJIA FONTES"],[787,"Chicontepec Veracruz","VERACRUZ NORTE","HUEJUTLA","SALGUERO FLORES RUBISEL"],[812,"Cosautlan Veracruz","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[821,"Boca del Rio Centro","VERACRUZ CENTRO","BOCA DEL RIO","ROMERO ESTRADA ARAZELY"],[822,"Matamoros Pinos","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[823,"Intercolonia","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[829,"Mante suzuki","VERACRUZ NORTE","TAMPICO SUR","IGNACIO ARCOS PÉREZ"],[834,"Orizatlan Hidalgo","VERACRUZ NORTE","HUEJUTLA","SALGUERO FLORES RUBISEL"],[853,"Palma Sola Veracruz","VERACRUZ CENTRO","CARDEL","GAMEZ MOLINOS ALEJANDRA MONSERRAT"],[875,"Tampico Mercado","VERACRUZ NORTE","TAMPICO NORTE","PEDRO TOMAS HERNANDEZ OLMOS"],[876,"Panuco Mercado","VERACRUZ NORTE","TAMPICO NORTE","PEDRO TOMAS HERNANDEZ OLMOS"],[877,"Cuitlahuac san pedro","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[879,"Metlaltoyuca","VERACRUZ NORTE","HUAUCHINANGO","SALVADOR MARQUEZ POZOS"],[886,"Tejeria","VERACRUZ CENTRO","HEROICA","LILIANA SANDOVAL GUEVARA"],[912,"La Cabrilla Tamiahua","VERACRUZ NORTE","TUXPAN","FERNANDO GARCÍA HERNÁNDEZ"],[915,"Nuevo Necaxa","VERACRUZ NORTE","HUAUCHINANGO","SALVADOR MARQUEZ POZOS"],[931,"MERCADO HÉROES 47 TUXPAN","VERACRUZ NORTE","TUXPAN","FERNANDO GARCÍA HERNÁNDEZ"],[932,"J.B. Lobos","VERACRUZ CENTRO","BOCA DEL RIO","ROMERO ESTRADA ARAZELY"],[938,"ACULTZINGO CENTRO","VERACRUZ SUR","CORDOBA","LOZANO SANCHEZ SAUL"],[959,"TAMPICO PALAFOX","VERACRUZ NORTE","TAMPICO NORTE","PEDRO TOMAS HERNANDEZ OLMOS"],[986,"Estación Manuel","VERACRUZ NORTE","TAMPICO SUR","IGNACIO ARCOS PÉREZ"],[1002,"Dos Lomas","VERACRUZ CENTRO","HEROICA","LILIANA SANDOVAL GUEVARA"],[1009,"Cerro Azul La Curva","VERACRUZ NORTE","TUXPAN","FERNANDO GARCÍA HERNÁNDEZ"],[1012,"Maltrata","VERACRUZ SUR","CORDOBA","LOZANO SANCHEZ SAUL"],[1016,"MISANTLA E ALATRISTE","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[1020,"Amapolas Puerto","VERACRUZ CENTRO","HEROICA","LILIANA SANDOVAL GUEVARA"],[1056,"Ozuluama","VERACRUZ NORTE","TAMPICO NORTE","PEDRO TOMAS HERNANDEZ OLMOS"],[1092,"Aldama Libertad","VERACRUZ NORTE","TAMPICO SUR","IGNACIO ARCOS PÉREZ"],[1094,"Altamira Laguna","VERACRUZ NORTE","TAMPICO SUR","IGNACIO ARCOS PÉREZ"],[1125,"Coacoatzintla Veracruz","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[1129,"Tampico Mercado Norte","VERACRUZ NORTE","TAMPICO NORTE","PEDRO TOMAS HERNANDEZ OLMOS"],[1145,"Oasis Sonora","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[1152,"Papantla","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[1153,"Tezonapa","VERACRUZ SUR","CORDOBA","LOZANO SANCHEZ SAUL"],[1157,"San Jose Chiltepec","VERACRUZ SUR","TUXTEPEC","RUBEN GUIZAR AGUIRRE"],[1158,"Reforma Coatzintla","VERACRUZ NORTE","GUTIERREZ ZAMORA","GUERRERO FERMAN SANTOS JAVIER"],[1174,"Tortuga Puente Moreno","VERACRUZ SUR","PUERTO","SANDOVAL GARCIA GUADALUPE"],[1187,"Pueblo Viejo","VERACRUZ NORTE","TAMPICO NORTE","PEDRO TOMAS HERNANDEZ OLMOS"],[1205,"Tequila","VERACRUZ SUR","CORDOBA","LOZANO SANCHEZ SAUL"],[1209,"Tuxpan los Cabos.","VERACRUZ NORTE","TUXPAN","FERNANDO GARCÍA HERNÁNDEZ"],[1235,"Tuxtepec","VERACRUZ SUR","PIÑERA","VANESSA SANCHEZ BASULTO"],[1236,"Huejutla","VERACRUZ NORTE","HUEJUTLA","SALGUERO FLORES RUBISEL"],[1237,"Tlaltetela","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[1244,"Jalapa de Diaz Juarez","VERACRUZ SUR","TUXTEPEC","RUBEN GUIZAR AGUIRRE"],[1246,"Madero Santa Elena","VERACRUZ NORTE","TAMPICO SUR","IGNACIO ARCOS PÉREZ"],[1247,"Yanga Calle 8","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[1249,"Nuevo tampico","VERACRUZ NORTE","TAMPICO SUR","IGNACIO ARCOS PÉREZ"],[1259,"Agua Fria Kiosco","VERACRUZ NORTE","POZA RICA","HERNANDEZ SANTES CAROLINA"],[1261,"Vistamar","VERACRUZ CENTRO","BOCA DEL RIO","ROMERO ESTRADA ARAZELY"],[1264,"Valle Gaviota","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[1272,"Tuxpan Americas","VERACRUZ NORTE","TUXPAN","FERNANDO GARCÍA HERNÁNDEZ"],[1283,"Coxquihui Hidalgo y Rayón","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[1286,"El paso tantoyuca","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[1289,"Tantoyuca mi mercado","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[1292,"Xana","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[1307,"Mecapalapa Puebla","VERACRUZ NORTE","HUAUCHINANGO","SALVADOR MARQUEZ POZOS"],[1313,"CABADA GANADERA ","VERACRUZ SUR","TUXTLAS","HERNANDEZ HERNANDEZ DAVID"],[1316,"Ixhuatlan Centro","VERACRUZ NORTE","ALAMO","JHAIR ALBERTO MEJIA FONTES"],[1318,"Las vegas obregon","VERACRUZ NORTE","POZA RICA","HERNANDEZ SANTES CAROLINA"],[1321,"La petromex","VERACRUZ NORTE","GUTIERREZ ZAMORA","GUERRERO FERMAN SANTOS JAVIER"],[1349,"Tierra Colorada Ver","VERACRUZ CENTRO","CARDEL","GAMEZ MOLINOS ALEJANDRA MONSERRAT"],[1355,"Anton Lizardo Azueta","VERACRUZ SUR","PUERTO","SANDOVAL GARCIA GUADALUPE"],[1383,"Tuxtepec 5 De Mayo","VERACRUZ SUR","TUXTEPEC","RUBEN GUIZAR AGUIRRE"],[1392,"Manlio Benito Juarez","VERACRUZ CENTRO","HEROICA","LILIANA SANDOVAL GUEVARA"],[1395,"Ayotzintepec","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[1404,"Tampico calle Heroes Centro","VERACRUZ NORTE","TAMPICO NORTE","PEDRO TOMAS HERNANDEZ OLMOS"],[1411,"Ixcatepec","VERACRUZ NORTE","ALAMO","JHAIR ALBERTO MEJIA FONTES"],[1412,"El Higo Mercado C","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[1417,"Central caram","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[1426,"Huejutla Mercado","VERACRUZ NORTE","HUEJUTLA","SALGUERO FLORES RUBISEL"],[1438,"Tierra Blanca Plaza Centro","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[1497,"CHICONTEPEC CENTRO","VERACRUZ NORTE","HUEJUTLA","SALGUERO FLORES RUBISEL"],[1502,"Av. 6 Cordoba","VERACRUZ SUR","CAFETALERA","MARGARITA FABIAN ARROYO"],[1504,"ABASTO PLAN DE AYALA","VERACRUZ NORTE","POZA RICA","HERNANDEZ SANTES CAROLINA"],[1515,"AMATLAN REYES","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[1527,"AMERICA PUENTE MORENO","VERACRUZ SUR","PUERTO","SANDOVAL GARCIA GUADALUPE"],[1530,"CARRILLO CRUCERO","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[1535,"AGUA DULCE PARQUE","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[1545,"ARISTA Y GLADIOLAS","VERACRUZ CENTRO","HEROICA","LILIANA SANDOVAL GUEVARA"],[1552,"TEHUETLAN","VERACRUZ NORTE","HUEJUTLA","SALGUERO FLORES RUBISEL"],[1555,"JOACHIN CENTRO","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[1559,"ROTONDA","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[1576,"Matamoros Poza Rica","VERACRUZ NORTE","GUTIERREZ ZAMORA","GUERRERO FERMAN SANTOS JAVIER"],[1583,"Camerino Z Mendoza","VERACRUZ SUR","CORDOBA","LOZANO SANCHEZ SAUL"],[1597,"HUEJUTLA CHACATITLA","VERACRUZ NORTE","HUEJUTLA","SALGUERO FLORES RUBISEL"],[1605,"SAN ANDRES CENTRO","VERACRUZ SUR","TUXTLAS","HERNANDEZ HERNANDEZ DAVID"],[1637,"LOS LAGOS","VERACRUZ SUR","PUERTO","SANDOVAL GARCIA GUADALUPE"],[1641,"GRAJALES TUXTEPEC","VERACRUZ SUR","TUXTEPEC","RUBEN GUIZAR AGUIRRE"],[1648,"COLATLAN","VERACRUZ NORTE","ALAMO","JHAIR ALBERTO MEJIA FONTES"],[1652,"KAWATZIN COLONIA","VERACRUZ NORTE","GUTIERREZ ZAMORA","GUERRERO FERMAN SANTOS JAVIER"],[1653,"NACIONAL POZA RICA","VERACRUZ NORTE","POZA RICA","HERNANDEZ SANTES CAROLINA"],[1659,"CUICHAPA CENTRO","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[1664,"LERDO CARRETERA","VERACRUZ SUR","TUXTLAS","HERNANDEZ HERNANDEZ DAVID"],[1683,"RAFAEL CRAVIOTO","VERACRUZ NORTE","HUAUCHINANGO","SALVADOR MARQUEZ POZOS"],[1689,"RIO SAN ISIDRO","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[1715,"Cocotero","VERACRUZ NORTE","TAMPICO SUR","IGNACIO ARCOS PÉREZ"],[1731,"EL CONEJO","VERACRUZ SUR","PIÑERA","VANESSA SANCHEZ BASULTO"],[1732,"TANTOYUCA CENTRO","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[1740,"LA LAGUNA 2","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[1742,"MONTE BLANCO CENTRO","VERACRUZ SUR","CAFETALERA","MARGARITA FABIAN ARROYO"],[1785,"LOMA BONITA CENTRO","VERACRUZ SUR","PIÑERA","VANESSA SANCHEZ BASULTO"],[1792,"MI TANTOYUCA","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[1796,"BOCA NEGRA ABASTO","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[1811,"TETILA","VERACRUZ SUR","TUXTLAS","HERNANDEZ HERNANDEZ DAVID"],[1822,"Reserva II","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[1844,"SAN BARTOLO","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[2520,"Altotonga","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[2845,"Tlacotlalpan","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[2853,"Benito Juarez","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[2855,"Carlos A. Carrillo","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[2856,"Alvarado","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[2857,"Ebano","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[2858,"Tantoyuca","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[2860,"16 de Septiembre","VERACRUZ NORTE","TANTOYUCA","FLORES AGUILAR RAFAEL"],[2863,"Soledad De Doblado","VERACRUZ CENTRO","HEROICA","LILIANA SANDOVAL GUEVARA"],[2864,"Tlapacoyan","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[2865,"Alamo","VERACRUZ NORTE","ALAMO","JHAIR ALBERTO MEJIA FONTES"],[2867,"Misantla","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[2868,"Naranjos","VERACRUZ NORTE","TUXPAN","FERNANDO GARCÍA HERNÁNDEZ"],[2869,"Revolucion Social","VERACRUZ SUR","TUXTLAS","HERNANDEZ HERNANDEZ DAVID"],[2920,"Teziutlan","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[2945,"Cerro Azul","VERACRUZ NORTE","TUXPAN","FERNANDO GARCÍA HERNÁNDEZ"],[3114,"Xicotepec","VERACRUZ NORTE","HUAUCHINANGO","SALVADOR MARQUEZ POZOS"],[3371,"Coatepec Centro","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[3455,"Cosamaloapan","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[3544,"Cordoba Avenida 11","VERACRUZ SUR","CAFETALERA","MARGARITA FABIAN ARROYO"],[3555,"Díaz Mirón","VERACRUZ CENTRO","PORTUARIA","ADOLFO ANGEL AYALA AZUARA"],[4509,"Huauchinango","VERACRUZ NORTE","HUAUCHINANGO","SALVADOR MARQUEZ POZOS"],[6460,"Gutierrez Zamora","VERACRUZ NORTE","GUTIERREZ ZAMORA","GUERRERO FERMAN SANTOS JAVIER"],[7230,"Orizaba Cañada","VERACRUZ SUR","CORDOBA","LOZANO SANCHEZ SAUL"],[7231,"Cordoba Mercado","VERACRUZ SUR","CAFETALERA","MARGARITA FABIAN ARROYO"],[7235,"Tierra Blanca","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[7254,"Catemaco","VERACRUZ SUR","TUXTLAS","HERNANDEZ HERNANDEZ DAVID"],[8905,"El Tejar","VERACRUZ SUR","PUERTO","SANDOVAL GARCIA GUADALUPE"],[8927,"Juan Soto","VERACRUZ CENTRO","BOCA DEL RIO","ROMERO ESTRADA ARAZELY"],[8932,"Martinez De La Torre","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[8935,"Vega De Alatorre","VERACRUZ CENTRO","COSTA ESMERALDA","GUEVARA RODRIGUEZ MARIELA"],[8939,"Galván","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[8940,"Mercadito Cardel","VERACRUZ CENTRO","CARDEL","GAMEZ MOLINOS ALEJANDRA MONSERRAT"],[8949,"Coyutla","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[8953,"Piedras Negras","VERACRUZ SUR","ORIZABA","MARÍA DE LA CRUZ MARTÍNEZ UTRERA"],[8957,"Tres Valles","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[8958,"Paso del Toro","VERACRUZ SUR","PUERTO","SANDOVAL GARCIA GUADALUPE"],[8960,"Zamora Veracruz","VERACRUZ NORTE","GUTIERREZ ZAMORA","GUERRERO FERMAN SANTOS JAVIER"],[8961,"Lazaro Cardenas","VERACRUZ CENTRO","HEROICA","LILIANA SANDOVAL GUEVARA"],[8962,"Alvarado Central","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[8963,"Castillo Jalapa","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[8964,"Cordoba San Miguel","VERACRUZ SUR","CAFETALERA","MARGARITA FABIAN ARROYO"],[8966,"Jilotepec","VERACRUZ CENTRO","XALAPA","VELASCO BELLO LUIS ENRIQUE"],[9011,"Mariano Abasolo","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[9014,"Huatusco","VERACRUZ SUR","CAFETALERA","MARGARITA FABIAN ARROYO"],[9019,"Cempoala","VERACRUZ CENTRO","CARDEL","GAMEZ MOLINOS ALEJANDRA MONSERRAT"],[9021,"Lagos","VERACRUZ CENTRO","COATEPEC","KARLA MERCEDES FERNANDEZ ZAVALETA"],[9023,"Tuxpan Radio","VERACRUZ NORTE","TUXPAN","FERNANDO GARCÍA HERNÁNDEZ"],[9029,"Pages","VERACRUZ CENTRO","BOCA DEL RIO","ROMERO ESTRADA ARAZELY"],[9034,"Papantla 16 de septiembre","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[9037,"La Burrita Mercado","VERACRUZ NORTE","POZA RICA","HERNANDEZ SANTES CAROLINA"],[9038,"Santiago Tuxtla","VERACRUZ SUR","TUXTLAS","HERNANDEZ HERNANDEZ DAVID"],[9040,"Ceiba","VERACRUZ NORTE","HUAUCHINANGO","SALVADOR MARQUEZ POZOS"],[9046,"Tuxtepec Juarez","VERACRUZ SUR","PIÑERA","VANESSA SANCHEZ BASULTO"],[9048,"Nino Artillero","VERACRUZ NORTE","PAPANTLA","JORGE DEL ANGEL JIMENEZ"],[9049,"Llano En Medio","VERACRUZ NORTE","ALAMO","JHAIR ALBERTO MEJIA FONTES"],[9052,"Teziutlan 16 De Septiembre","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[9059,"Pemex Tierra Blanca ","VERACRUZ SUR","CUENCA","MONFIL GARCIA LUIS GUSTAVO"],[9067,"La Uno 12 De Diciembre","VERACRUZ NORTE","HUAUCHINANGO","SALVADOR MARQUEZ POZOS"],[9080,"Mariano Arista","VERACRUZ NORTE","GUTIERREZ ZAMORA","GUERRERO FERMAN SANTOS JAVIER"],[9084,"Tezihutlan Hidalgo","VERACRUZ CENTRO","TEZIUTLAN","MOTA RETURETA LAURO OMAR"],[9094,"Alvarado Mercado","VERACRUZ SUR","ALVARADO","PERALTA DOMINGUEZ ALMA DELIA"],[9097,"Tihuatlan","VERACRUZ NORTE","ALAMO","JHAIR ALBERTO MEJIA FONTES"],[9101,"Cazones","VERACRUZ NORTE","POZA RICA","HERNANDEZ SANTES CAROLINA"],[9112,"Manuel de la Cabada","VERACRUZ SUR","TUXTLAS","HERNANDEZ HERNANDEZ DAVID"]],"tc":["SERGIO ISAI OLVERA LARA","RAFAEL LILI PEREZ","ANGEL ISMAEL MORGAN SOLANO","OMAR DUARTE LARA","No se identificó","No aplica"],"chofer":["SERGIO ISAI OLVERA LARA","RAFAEL LILI PEREZ","ANGEL ISMAEL MORGAN SOLANO","OMAR DUARTE LARA","JUAN LOPEZ SANTIAGO","ROBERTO CARLOS JUAREZ GALICIA","JULIO CESAR CORDOBA RODRIGUEZ","SERGIO SANTOS PEGUEROS","DAVID RUBEN FABELA DIAZ","JOSE MARTIN PARRA MORENO","SERGIO MUÑOZ NAVARRETE","OTONIEL REYES RAMON","JESUS HUESCA GONZALEZ","PEDRO COLORADO AGOSTO","FERNANDO CAZARIN HERNANDEZ","MAURICIO DIAZ LOPEZ","JOSE GUADALUPE LAZARO CLEMENTE","EDINHO ANTONIO CORDOBA MENDEZ","OCTAVIO ALBERTO ALCANTARA MORALES","ULISES ENRIQUEZ VALENZUELA","ABEL MORALES BARRADAS","JESUS EDUARDO SANCHEZ HERNANDEZ","SERGIO HERMIDA GARCIA","JORGE REYES MEDINA","No se identificó","No aplica"],"aux":["MARIO ALBERTO RUIZ DE LEON","JOSE ROBERTO VAZQUEZ ESPINDOLA","MARIO CONTRERAS RUFINO","SAMUEL BARCELATA TENORIO","ALEJANDRO MUÑOZ CASTRO","EDWING EMANUEL GODINEZ MARTINEZ","AGUSTIN ACOSTA SANTOS","RAUL BENJAMIN ARAU GONZALEZ","EDUARDO MARTINEZ CRUZ","ALEXIS VALLEJO SANCHEZ","JORDAN HUSAI VALLEJO SANCHEZ","HUMBERTO TORRES AMARO","VICTOR DANIEL MORENO PAREDES","VIDAL REYES GUTIERREZ","ANGEL ADOLFO RODRIGUEZ LARA","JUAN CAMPOS HERNANDEZ","UBALDO ABURTO HERNANDEZ","VLADIMIR VERA VILLALOBOS","LEONEL LEON AVENDAÑO","CARLOS ANTONIO GUEVARA APARICIO","RAFAEL ISAAC FLORES REYES","HERIBERTO FRIAS ROSADO","JOHAMY ALEJANDRO DIAZ SOTO","EDUARDO CASTILLO ANDRADE","ADALBERTO MALAGA PIO","JORGE IVAN GALINDO SUAREZ","JOSE ESTEBAN CORDOBA ARANA","JESUS MANUEL CANO VALDEZ","LUIS ADRIAN PARRA MORENO","LUIS ANGEL MORENO OLMOS","ABELARDO MORALES HERNANDEZ","MARTIN ALEXANDER FLORES SANCHEZ","FIDEL VAZQUEZ MORALES","JOSE JULIAN ORTIZ OSEGUERA","No se identificó","No aplica"]};
+let STORES = new Map(D.stores.map(s=>[String(s[0]),{eco:s[0],tienda:s[1],region:s[2],zona:s[3],coach:s[4]}]));
+const OPT = {
+  yn:["Sí","No","No aplica"], ynr:["Sí","No"],
+  ruta:["Sí, oportunamente","Sí, pero con retraso","No recibí información","No aplica"],
+  tipo:["Retraso de ruta","Problema durante descarga","Faltante/diferencia mercancía","Mercancía dañada","Otro","No aplica"],
+  res:["Sí, completamente","Parcialmente","No, sigue pendiente","No aplica"],
+  est:["Pendiente","En proceso","Resuelto","No aplica"], cal:["1","2","3","4","5"]
+};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=(n,d=2)=>n==null||isNaN(n)?"–":Number(n).toLocaleString("es-MX",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=(a,b)=>b?fmt(100*a/b,1)+"%":"–";
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+
+/* ---------- construcción de controles ---------- */
+function fillSel(id,list,ph){ $(id).innerHTML=(ph?`<option value="">${ph}</option>`:"")+list.map(x=>`<option>${esc(x)}</option>`).join(""); }
+function buildSeg(el,list){
+  const n=el.dataset.n;
+  el.innerHTML=list.map((v,i)=>`<input type="radio" name="${n}" id="${n}_${i}" value="${esc(v)}"><label for="${n}_${i}">${esc(v)}</label>`).join("");
+}
+const SEG={tcId:OPT.yn,ruta:OPT.ruta,calTC:OPT.cal,inc:OPT.ynr,resuelto:OPT.res,opId:OPT.yn,cred:OPT.yn,trato:OPT.yn,descarga:OPT.yn,calTrip:OPT.cal};
+document.querySelectorAll(".seg").forEach(el=>buildSeg(el,SEG[el.dataset.n]));
+fillSel("tc",D.tc,"Selecciona…"); fillSel("chofer",D.chofer,"Selecciona…"); fillSel("aux",D.aux,"Selecciona…");
+fillSel("tipo",OPT.tipo,"Selecciona…"); fillSel("estado",OPT.est);
+const getR=n=>{const e=document.querySelector(`input[name="${n}"]:checked`);return e?e.value:""};
+const setR=(n,v)=>{document.querySelectorAll(`input[name="${n}"]`).forEach(e=>e.checked=(e.value===v))};
+
+/* ---------- autollenado por ECO ---------- */
+function lookup(){
+  const v=$("eco").value.replace(/\D/g,"").replace(/^0+/,"");
+  const s=STORES.get(v);
+  const h=$("ecoHint");
+  if(s){
+    $("tienda").value=s.tienda; $("coach").value=s.coach; $("zona").value=s.zona; $("region").value=s.region;
+    h.className="hint ok"; h.textContent="✓ Tienda encontrada";
+  } else {
+    ["tienda","coach","zona","region"].forEach(i=>$(i).value="");
+    h.className="hint "+(v.length>=3?"err":""); h.textContent=v.length>=3?"No existe ese ECO en el catálogo de Veracruz (tiendas activas)":"";
+  }
+  return s||null;
+}
+$("eco").addEventListener("input",()=>{lookup();syncFolio();});
+
+/* ---------- folio automático ---------- */
+function nextFolio(eco,fecha){
+  const base="INC-"+fecha.replace(/-/g,"").slice(2)+"-"+eco;
+  const n=ROWS.filter(r=>r.folio&&r.folio.startsWith(base+"-")).length+1;
+  return base+"-"+String(n).padStart(2,"0");
+}
+function syncFolio(){
+  const s=STORES.get($("eco").value.replace(/\D/g,"").replace(/^0+/,""));
+  $("folio").value=(getR("inc")==="Sí"&&s&&$("fecha").value)?nextFolio(s.eco,$("fecha").value):"";
+}
+/* ---------- lógica condicional ---------- */
+function syncForm(){
+  const inc=getR("inc");
+  $("incBox").classList.toggle("hide",inc!=="Sí");
+  const res=getR("resuelto");
+  const open=inc==="Sí" && res && res!=="Sí, completamente" && res!=="No aplica";
+  $("segBox").classList.toggle("hide",!open);
+  if(open && ($("estado").value==="No aplica"||!$("estado").value)) $("estado").value="Pendiente";
+  const c1=+getR("calTC"), c2=+getR("calTrip");
+  syncFolio();
+  $("reqTC").textContent=(c1&&c1<=3)?"(obligatorio con calificación 3 o menos)":"";
+  $("reqTrip").textContent=(c2&&c2<=3)?"(obligatorio con calificación 3 o menos)":"";
+}
+$("f").addEventListener("change",syncForm);
+
+function resetForm(){
+  $("f").reset(); $("fecha").value=today(); lookup();
+  document.querySelectorAll('#f input[type=radio]').forEach(e=>e.checked=false);
+  $("ecoHint").textContent=""; syncForm();
+}
+
+/* ---------- almacenamiento: Google Sheet vía Apps Script ---------- */
+const API="https://script.google.com/macros/s/AKfycbwbcFAg9VtpWnNkOur7k52I19DKfI0KhVAiBNRmctCxhaJcEbF2TqK4Pt5WshjMBK1l/exec";
+let ROWS=[], mode="sheet";
+function setStatus(m){ $("store").textContent = m||"● Conectado a Google Sheet"; }
+const EXTRA=["No se identificó","No aplica"];
+function applyCatalog(c){
+  if(c.tiendas&&c.tiendas.length) STORES=new Map(c.tiendas.map(s=>[String(s[0]),{eco:s[0],tienda:s[1],region:s[2],zona:s[3],coach:s[4]}]));
+  const keep=["tc","chofer","aux","fRegion","fZona","fCoach"].map(i=>[i,$(i).value]);
+  ["tc","chofer","aux"].forEach(k=>{ if(c[k]&&c[k].length){ D[k]=[...new Set([...c[k],...EXTRA])]; fillSel(k,D[k],"Selecciona…"); } });
+  initFilters();
+  keep.forEach(([i,v])=>{ if([...$(i).options].some(o=>o.value===v)) $(i).value=v; });
+  lookup();
+}
+async function load(){
+  try{
+    const r=await (await fetch(API)).json();
+    if(r.ok){applyCatalog(r); ROWS=r.rows.map(x=>({...x,eco:+x.eco,calTC:+x.calTC,calTrip:+x.calTrip})); setStatus(); renderAll();}
+  }catch(e){ setStatus("● Sin conexión al Sheet"); }
+}
+async function post(b){
+  const r=await (await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(b)})).json();
+  if(!r.ok) throw new Error(r.error); return r;
+}
+async function initStore(){ await load(); setInterval(load,60000); }
+async function saveRow(r){ const res=await post({action:"add",row:r}); if(res.folio) r.folio=res.folio; ROWS.push(r); renderAll(); }
+async function patchRow(id,patch){ await post({action:"update",id,patch}); const r=ROWS.find(x=>x.id===id); if(r)Object.assign(r,patch); renderAll(); }
+
+/* ---------- guardar encuesta ---------- */
+$("f").addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  const s=lookup(), err=[];
+  if(!$("fecha").value) err.push("Captura la fecha de entrega.");
+  if(!s) err.push("Captura un número de tienda (ECO) válido.");
+  if(!$("tc").value) err.push("Selecciona quién atendió de Torre de Control.");
+  if(!getR("tcId")) err.push("Indica si Torre de Control se identificó.");
+  if(!getR("ruta")) err.push("Indica si recibió seguimiento de la ruta.");
+  if(!getR("calTC")) err.push("Califica a Torre de Control (1 a 5).");
+  if(+getR("calTC")&&+getR("calTC")<=3&&!$("motivoTC").value.trim()) err.push("Escribe el motivo de la calificación de Torre de Control.");
+  const inc=getR("inc"); if(!inc) err.push("Indica si hubo incidencia.");
+  let tipo="No aplica",res="No aplica",folio="",detalle="";
+  if(inc==="Sí"){
+    tipo=$("tipo").value; res=getR("resuelto"); folio=nextFolio(s?s.eco:"",$("fecha").value||today()); detalle=$("detalle").value.trim();
+    if(!tipo||tipo==="No aplica") err.push("Selecciona el tipo de incidencia.");
+    if(!res||res==="No aplica") err.push("Indica si la incidencia se resolvió.");
+    if(!detalle) err.push("Captura el detalle de la incidencia.");
+  }
+  if(!$("chofer").value) err.push("Selecciona al chofer."); if(!$("aux").value) err.push("Selecciona al auxiliar de maniobra.");
+  ["opId","cred","trato","descarga"].forEach(k=>{if(!getR(k)) err.push("Responde todas las preguntas de la tripulación.")});
+  if(!getR("calTrip")) err.push("Califica a la tripulación (1 a 5).");
+  if(+getR("calTrip")&&+getR("calTrip")<=3&&!$("motivoTrip").value.trim()) err.push("Escribe el motivo de la calificación de la tripulación.");
+  const open=inc==="Sí"&&res!=="Sí, completamente"&&res!=="No aplica";
+  if(open){ if(!$("resp").value.trim()) err.push("Captura el responsable de seguimiento."); if(!$("fcomp").value) err.push("Captura la fecha compromiso."); }
+  const box=$("fmsg");
+  if(err.length){ box.innerHTML='<div class="msg err"><b>Falta completar:</b><br>'+[...new Set(err)].map(esc).join("<br>")+'</div>'; box.scrollIntoView({behavior:"smooth",block:"center"}); return; }
+  const r={
+    id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), ts:new Date().toISOString(),
+    fecha:$("fecha").value, eco:s.eco, tienda:s.tienda, region:s.region, zona:s.zona, coach:s.coach,
+    tc:$("tc").value, tcId:getR("tcId"), ruta:getR("ruta"), inc, tipo, resuelto:res, folio, detalle,
+    calTC:+getR("calTC"), motivoTC:$("motivoTC").value.trim(), chofer:$("chofer").value, aux:$("aux").value,
+    opId:getR("opId"), cred:getR("cred"), trato:getR("trato"), descarga:getR("descarga"),
+    calTrip:+getR("calTrip"), motivoTrip:$("motivoTrip").value.trim(), sug:$("sug").value.trim(),
+    resp:open?$("resp").value.trim():"", fcomp:open?$("fcomp").value:"", estado:open?$("estado").value:"No aplica"
+  };
+  try{
+    await saveRow(r);
+    resetForm();
+    box.innerHTML='<div class="msg ok">✓ Encuesta guardada: ECO '+esc(r.eco)+' · '+esc(r.tienda)+(r.folio?' · Folio '+esc(r.folio):'')+'.</div>';
+    window.scrollTo({top:0,behavior:"smooth"});
+    setTimeout(()=>{box.innerHTML=""},6000);
+  }catch(e){
+    box.innerHTML='<div class="msg err">No se pudo guardar'+""+'. Intenta de nuevo.</div>';
+  }
+});
+$("clear").addEventListener("click",()=>{resetForm();$("fmsg").innerHTML=""});
+
+/* ---------- navegación ---------- */
+document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  ["enc","dash","reg"].forEach(t=>$("t-"+t).classList.toggle("hide",t!==b.dataset.t));
+  window.scrollTo(0,0);
+}));
+
+/* ---------- dashboard ---------- */
+const F={region:"",zona:"",coach:"",desde:"",hasta:""}; let DIM="region", CREW="chofer";
+function opts(id,vals,ph){const cur=$(id).value; $(id).innerHTML=`<option value="">${ph}</option>`+vals.map(v=>`<option>${esc(v)}</option>`).join(""); if(vals.includes(cur))$(id).value=cur;}
+function initFilters(){
+  const all=[...STORES.values()];
+  const u=k=>[...new Set(all.map(s=>s[k]))].sort();
+  opts("fRegion",u("region"),"Todas"); opts("fZona",u("zona"),"Todas"); opts("fCoach",u("coach"),"Todos");
+}
+["fRegion","fZona","fCoach","fDesde","fHasta"].forEach(id=>$(id).addEventListener("change",()=>{
+  F.region=$("fRegion").value;F.zona=$("fZona").value;F.coach=$("fCoach").value;F.desde=$("fDesde").value;F.hasta=$("fHasta").value;renderAll();}));
+$("fReset").addEventListener("click",()=>{["fRegion","fZona","fCoach","fDesde","fHasta"].forEach(i=>$(i).value="");Object.keys(F).forEach(k=>F[k]="");renderAll();});
+document.querySelectorAll("#dimChips button").forEach(b=>b.addEventListener("click",()=>{DIM=b.dataset.d;document.querySelectorAll("#dimChips button").forEach(x=>x.classList.toggle("on",x===b));renderAll();}));
+document.querySelectorAll("#crewChips button").forEach(b=>b.addEventListener("click",()=>{CREW=b.dataset.c;document.querySelectorAll("#crewChips button").forEach(x=>x.classList.toggle("on",x===b));renderAll();}));
+
+const filtered=()=>ROWS.filter(r=>(!F.region||r.region===F.region)&&(!F.zona||r.zona===F.zona)&&(!F.coach||r.coach===F.coach)&&(!F.desde||r.fecha>=F.desde)&&(!F.hasta||r.fecha<=F.hasta));
+const cls=v=>v==null?"":v>=4.5?"good":v>=4?"mid":"bad";
+const pill=v=>v==null?"–":`<span class="pill ${cls(v)}">${fmt(v)}</span>`;
+function group(rows,key){const m=new Map();rows.forEach(r=>{const k=r[key]||"—";if(!m.has(k))m.set(k,[]);m.get(k).push(r)});return m;}
+
+function renderKpis(R){
+  const inc=R.filter(r=>r.inc==="Sí"), resOk=inc.filter(r=>r.resuelto==="Sí, completamente");
+  const open=R.filter(r=>r.estado==="Pendiente"||r.estado==="En proceso");
+  const tcAvg=avg(R.map(r=>r.calTC)), trAvg=avg(R.map(r=>r.calTrip));
+  const oport=R.filter(r=>r.ruta==="Sí, oportunamente").length, sinInfo=R.filter(r=>r.ruta==="No recibí información").length;
+  const k=[
+    ["Encuestas",R.length,"entregas evaluadas"],
+    ["Calificación Torre",fmt(tcAvg),"promedio de 5"],
+    ["Calificación tripulación",fmt(trAvg),"promedio de 5"],
+    ["Con incidencia",pct(inc.length,R.length),inc.length+" entregas"],
+    ["Incidencias resueltas",inc.length?pct(resOk.length,inc.length):"–",resOk.length+" de "+inc.length],
+    ["Comunicación oportuna",pct(oport,R.length),sinInfo+" sin información de ruta"],
+    ["Seguimientos abiertos",open.length,"pendientes o en proceso"]
+  ];
+  $("kpis").innerHTML=k.map(x=>`<div class="kpi"><div class="l">${x[0]}</div><div class="v">${x[1]}</div><div class="s">${x[2]}</div></div>`).join("");
+}
+function renderDist(R){
+  if(!R.length){$("dist").innerHTML='<div class="empty">Aún no hay encuestas capturadas.</div>';return;}
+  const cT=[0,0,0,0,0,0],cC=[0,0,0,0,0,0]; R.forEach(r=>{cT[r.calTC]++;cC[r.calTrip]++});
+  const mx=Math.max(1,...cT,...cC);
+  let h='<div class="dist"><div class="h"></div><div class="h">Torre de Control</div><div class="h">Tripulación</div><div class="h" style="text-align:right">Torre / Trip.</div>';
+  for(let i=5;i>=1;i--){
+    h+=`<div><b>${i}</b></div><div><div class="bar" style="width:${100*cT[i]/mx}%"></div></div><div><div class="bar" style="width:${100*cC[i]/mx}%;background:var(--bar2)"></div></div><div style="text-align:right;font-variant-numeric:tabular-nums">${cT[i]} / ${cC[i]}</div>`;
+  }
+  $("dist").innerHTML=h+"</div>";
+}
+function renderIncTipo(R){
+  const inc=R.filter(r=>r.inc==="Sí");
+  if(!inc.length){$("incTipo").innerHTML='<div class="empty">Sin incidencias registradas.</div>';return;}
+  const m=group(inc,"tipo"), rows=[...m.entries()].sort((a,b)=>b[1].length-a[1].length), mx=rows[0][1].length;
+  $("incTipo").innerHTML='<table><tbody>'+rows.map(([k,v])=>`<tr><td>${esc(k)}</td><td style="width:40%"><div class="bar" style="width:${100*v.length/mx}%"></div></td><td class="n"><b>${v.length}</b></td><td class="n">${pct(v.filter(r=>r.resuelto==="Sí, completamente").length,v.length)} resueltas</td></tr>`).join("")+'</tbody></table>';
+}
+function table(head,rows){ return `<table><thead><tr>${head.map((h,i)=>`<th class="${i?'n':''}">${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>`; }
+function renderDim(R){
+  if(!R.length){$("byDim").innerHTML='<div class="empty">Sin datos para los filtros elegidos.</div>';return;}
+  const m=group(R,DIM);
+  const rows=[...m.entries()].map(([k,v])=>({k,n:v.length,t:avg(v.map(r=>r.calTC)),c:avg(v.map(r=>r.calTrip)),i:v.filter(r=>r.inc==="Sí").length,p:v.filter(r=>r.estado==="Pendiente"||r.estado==="En proceso").length}))
+    .sort((a,b)=>(a.t+a.c)-(b.t+b.c));
+  $("byDim").innerHTML=table([{region:"Región",zona:"Zona",coach:"Coach",tienda:"Tienda"}[DIM],"Encuestas","Torre","Tripulación","Incidencias","Abiertos"],
+    rows.map(r=>`<tr><td>${esc(r.k)}</td><td class="n">${r.n}</td><td class="n">${pill(r.t)}</td><td class="n">${pill(r.c)}</td><td class="n">${r.i}</td><td class="n">${r.p}</td></tr>`))
+    + '<div class="note" style="margin-top:6px">Ordenado de menor a mayor calificación. Verde ≥ 4.5 · ámbar ≥ 4.0 · rojo &lt; 4.0</div>';
+}
+function renderTC(R){
+  if(!R.length){$("byTC").innerHTML='<div class="empty">Sin datos.</div>';return;}
+  const rows=[...group(R,"tc").entries()].map(([k,v])=>({k,n:v.length,t:avg(v.map(r=>r.calTC)),id:v.filter(r=>r.tcId==="Sí").length,ok:v.filter(r=>r.ruta==="Sí, oportunamente").length})).sort((a,b)=>b.n-a.n);
+  $("byTC").innerHTML=table(["Colaborador","Encuestas","Calificación","Se identificó","Ruta oportuna"],rows.map(r=>`<tr><td>${esc(r.k)}</td><td class="n">${r.n}</td><td class="n">${pill(r.t)}</td><td class="n">${pct(r.id,r.n)}</td><td class="n">${pct(r.ok,r.n)}</td></tr>`));
+}
+function renderCrew(R){
+  if(!R.length){$("byCrew").innerHTML='<div class="empty">Sin datos.</div>';return;}
+  const rows=[...group(R,CREW).entries()].map(([k,v])=>({k,n:v.length,c:avg(v.map(r=>r.calTrip)),cr:v.filter(r=>r.cred==="Sí").length,tr:v.filter(r=>r.trato==="Sí").length,de:v.filter(r=>r.descarga==="Sí").length})).sort((a,b)=>a.c-b.c);
+  $("byCrew").innerHTML=table([CREW==="chofer"?"Chofer":"Auxiliar","Enc.","Calif.","Credencial","Trato","Descarga"],rows.map(r=>`<tr><td>${esc(r.k)}</td><td class="n">${r.n}</td><td class="n">${pill(r.c)}</td><td class="n">${pct(r.cr,r.n)}</td><td class="n">${pct(r.tr,r.n)}</td><td class="n">${pct(r.de,r.n)}</td></tr>`));
+}
+function renderPend(R){
+  const p=R.filter(r=>r.estado==="Pendiente"||r.estado==="En proceso").sort((a,b)=>(a.fcomp||"9").localeCompare(b.fcomp||"9"));
+  if(!p.length){$("pend").innerHTML='<div class="empty">No hay seguimientos abiertos.</div>';return;}
+  $("pend").innerHTML=table(["Fecha compromiso","ECO / Tienda","Coach","Incidencia","Folio","Responsable","Estado",""],
+    p.map(r=>`<tr><td class="n">${esc(r.fcomp)}${r.fcomp&&r.fcomp<today()?' <span class="pill bad">vencido</span>':''}</td><td>${esc(r.eco)} · ${esc(r.tienda)}</td><td>${esc(r.coach)}</td><td>${esc(r.tipo)}<div class="note">${esc(r.detalle)}</div></td><td>${esc(r.folio)}</td><td>${esc(r.resp)}</td><td class="n">${esc(r.estado)}</td><td><button class="btn sm" data-id="${esc(r.id)}" data-a="close">Marcar resuelto</button></td></tr>`));
+}
+$("pend").addEventListener("click",async e=>{const b=e.target.closest("button[data-a=close]"); if(!b)return; b.disabled=true; try{await patchRow(b.dataset.id,{estado:"Resuelto",resuelto:"Sí, completamente"});}catch(x){b.disabled=false;}});
+function renderCover(R){
+  const cov=new Map(); R.forEach(r=>cov.set(String(r.eco),(cov.get(String(r.eco))||0)+1));
+  let all=[...STORES.values()].filter(s=>(!F.region||s.region===F.region)&&(!F.zona||s.zona===F.zona)&&(!F.coach||s.coach===F.coach));
+  const done=all.filter(s=>cov.has(String(s.eco))).length;
+  const byZ=new Map(); all.forEach(s=>{const o=byZ.get(s.zona)||{z:s.zona,c:s.coach,t:0,d:0};o.t++;if(cov.has(String(s.eco)))o.d++;byZ.set(s.zona,o)});
+  const rows=[...byZ.values()].sort((a,b)=>(a.d/a.t)-(b.d/b.t));
+  const sin=all.filter(s=>!cov.has(String(s.eco)));
+  $("cover").innerHTML=`<p style="margin-top:0"><b>${done}</b> de <b>${all.length}</b> tiendas con al menos una encuesta (${pct(done,all.length)}).</p>`
+   +'<div class="scroll" style="max-height:320px">'+table(["Zona","Tiendas","Encuestadas","Cobertura","Sin encuesta"],rows.map(o=>`<tr><td>${esc(o.z)}</td><td class="n">${o.t}</td><td class="n">${o.d}</td><td class="n">${pct(o.d,o.t)}</td><td class="n">${o.t-o.d}</td></tr>`))+'</div>'
+   +`<details style="margin-top:10px"><summary>Ver ${sin.length} tiendas sin encuesta</summary><div class="scroll" style="max-height:260px">${table(["ECO / Tienda","Zona","Coach"],sin.map(s=>`<tr><td>${s.eco} · ${esc(s.tienda)}</td><td class="n">${esc(s.zona)}</td><td class="n">${esc(s.coach)}</td></tr>`))}</div></details>`;
+}
+
+/* ---------- registros ---------- */
+const COLS=[["fecha","Fecha"],["eco","ECO"],["tienda","Tienda"],["region","Región"],["zona","Zona"],["coach","Coach"],["tc","Torre de Control"],["tcId","TC se identificó"],["ruta","Seguimiento ruta"],["inc","Incidencia"],["tipo","Tipo"],["resuelto","¿Resuelta?"],["folio","Folio"],["detalle","Detalle"],["calTC","Calif. Torre"],["motivoTC","Motivo Torre"],["chofer","Chofer"],["aux","Auxiliar"],["opId","Se identificaron"],["cred","Credencial"],["trato","Trato profesional"],["descarga","Descarga ordenada"],["calTrip","Calif. Tripulación"],["motivoTrip","Motivo Tripulación"],["sug","Sugerencias"],["resp","Responsable"],["fcomp","Fecha compromiso"],["estado","Estado seguimiento"]];
+function renderReg(R){
+  $("regTitle").textContent="Registros ("+R.length+")";
+  const rows=[...R].sort((a,b)=>(b.ts||"").localeCompare(a.ts||""));
+  if(!rows.length){$("regTable").innerHTML='<div class="empty">Aún no hay encuestas capturadas.</div>';return;}
+  const show=["fecha","eco","tienda","coach","tc","calTC","chofer","aux","calTrip","inc","tipo","estado"];
+  $("regTable").innerHTML=table(show.map(k=>COLS.find(c=>c[0]===k)[1]),rows.slice(0,300).map(r=>`<tr>${show.map(k=>`<td class="${k.startsWith('cal')?'n':''}">${esc(r[k])}</td>`).join("")}</tr>`));
+}
+$("copyCsv").addEventListener("click",async()=>{
+  const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+  const csv=[COLS.map(c=>q(c[1])).join(",")].concat(filtered().map(r=>COLS.map(c=>q(r[c[0]])).join(","))).join("\n");
+  try{await navigator.clipboard.writeText(csv);$("copyMsg").textContent="Copiado. Pégalo en Excel.";}catch(e){$("copyMsg").textContent="No se pudo copiar desde aquí.";}
+  setTimeout(()=>$("copyMsg").textContent="",4000);
+});
+
+function renderAll(){
+  const R=filtered();
+  renderKpis(R);renderDist(R);renderIncTipo(R);renderDim(R);renderTC(R);renderCrew(R);renderPend(R);renderCover(R);renderReg(R);
+}
+
+initFilters(); resetForm(); initStore();
+</script>
+</body>
+</html>
