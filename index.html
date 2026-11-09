@@ -256,7 +256,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 
   <div class="card"><h3>Incidencias con seguimiento abierto</h3><div class="scroll" id="pend"></div></div>
 
-  <div class="card"><h3>Cobertura de tiendas encuestadas</h3><div id="cover"></div></div>
+  <div class="card"><h3>Cobertura de tiendas encuestadas</h3><div id="coverage"></div></div>
 </section>
 
 <!-- ============ REGISTROS ============ -->
@@ -351,7 +351,7 @@ function resetForm(){
 }
 
 /* ---------- almacenamiento: Google Sheet vía Apps Script ---------- */
-const API="https://script.google.com/macros/s/AKfycbwbcFAg9VtpWnNkOur7k52I19DKfI0KhVAiBNRmctCxhaJcEbF2TqK4Pt5WshjMBK1l/exec";
+const API="https://script.google.com/macros/s/AKfycbxSZNwIaxN8i3TNzHVxrNfcoFH3VD3mA7a-Fh4VFwzXVhtwLCJLI1ziy7Jsjm2Hg-qe/exec";
 let ROWS=[], mode="sheet", KEY="";
 try{KEY=sessionStorage.getItem("k")||""}catch(e){}
 function setStatus(m){ $("store").textContent = m||"● Conectado a Google Sheet"; }
@@ -549,7 +549,7 @@ function renderCover(R){
   const byZ=new Map(); all.forEach(s=>{const o=byZ.get(s.zona)||{z:s.zona,c:s.coach,t:0,d:0};o.t++;if(cov.has(String(s.eco)))o.d++;byZ.set(s.zona,o)});
   const rows=[...byZ.values()].sort((a,b)=>(a.d/a.t)-(b.d/b.t));
   const sin=all.filter(s=>!cov.has(String(s.eco)));
-  $("cover").innerHTML=`<p style="margin-top:0"><b>${done}</b> de <b>${all.length}</b> tiendas con al menos una encuesta (${pct(done,all.length)}).</p>`
+  $("coverage").innerHTML=`<p style="margin-top:0"><b>${done}</b> de <b>${all.length}</b> tiendas con al menos una encuesta (${pct(done,all.length)}).</p>`
    +'<div class="scroll" style="max-height:320px">'+table(["Zona","Tiendas","Encuestadas","Cobertura","Sin encuesta"],rows.map(o=>`<tr><td>${esc(o.z)}</td><td class="n">${o.t}</td><td class="n">${o.d}</td><td class="n">${pct(o.d,o.t)}</td><td class="n">${o.t-o.d}</td></tr>`))+'</div>'
    +`<details style="margin-top:10px"><summary>Ver ${sin.length} tiendas sin encuesta</summary><div class="scroll" style="max-height:260px">${table(["ECO / Tienda","Zona","Coach"],sin.map(s=>`<tr><td>${s.eco} · ${esc(s.tienda)}</td><td class="n">${esc(s.zona)}</td><td class="n">${esc(s.coach)}</td></tr>`))}</div></details>`;
 }
